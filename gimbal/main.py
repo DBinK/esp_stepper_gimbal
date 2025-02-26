@@ -14,7 +14,7 @@ imu_dt = TimeDiff()
 rc_dt  = TimeDiff()
 
 # 创建管理器（共享定时器）
-manager = MultiMotorManager(period=200, timer_id=-1)
+manager = MultiMotorManager(period=2, timer_id=-1)
 
 # 创建多个电机并注册到管理器
 motor_x = StepperMotor(step_pin=25, dir_pin=27)
@@ -31,7 +31,7 @@ def rc_loop():
     global rc_data, stick_work
 
     while True:
-        time.sleep(0.1)
+        time.sleep(0.01)
         # time.sleep(0.001)
 
         ms = rc_dt.time_diff() / 1_000_000
@@ -63,11 +63,13 @@ def gimbal_loop():
             _rx = rc_data[4]
         
             if rc_data[6] != 0x0:  # 急停保险
+                motor_x.speed = 0
+                motor_y.speed = 0
+                rc_data = [0, 0, 0, 0, 0, 0, 0, 0]
                 print("急停!")
+                time.sleep(5)
 
-            if stick_work:
-                pass
-            
+            # 摇杆数据缩放
             x_speed = _lx * 10
             y_speed = _ly * 10
 
