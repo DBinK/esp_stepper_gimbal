@@ -5,7 +5,8 @@ from machine import Pin
 
 from modules.utils import TimeDiff
 from modules.now_recv import read_espnow, process_data
-from modules.speed_mode import StepperMotor, MultiMotorManager
+# from modules.speed_mode import StepperMotor, MultiMotorManager
+from modules.position_mode import StepperMotor
 
 
 time.sleep(1)  # 防止点停止按钮后马上再启动导致 Thonny 连接不上
@@ -13,14 +14,17 @@ time.sleep(1)  # 防止点停止按钮后马上再启动导致 Thonny 连接不�
 imu_dt = TimeDiff()
 rc_dt  = TimeDiff()
 
-# 创建管理器（共享定时器）
-manager = MultiMotorManager(period=2, timer_id=-1)
+# # 创建管理器（共享定时器）
+# manager = MultiMotorManager(period=2, timer_id=-1)
 
-# 创建多个电机并注册到管理器
-motor_y = StepperMotor(step_pin=26, dir_pin=16)
+# # 创建多个电机并注册到管理器
+# motor_y = StepperMotor(step_pin=26, dir_pin=16)
+# motor_x = StepperMotor(step_pin=25, dir_pin=27)
+# manager.add_motor(motor_x)
+# manager.add_motor(motor_y)
+
 motor_x = StepperMotor(step_pin=25, dir_pin=27)
-manager.add_motor(motor_x)
-manager.add_motor(motor_y)
+motor_y = StepperMotor(step_pin=26, dir_pin=16)
 
 # 摇杆数据全局变量
 rc_data = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -77,13 +81,24 @@ def gimbal_loop():
             print(f"x_speed: {x_speed}, y_speed: {y_speed}")
 
             # 控制电机
-            motor_x.speed = x_speed
-            motor_y.speed = y_speed
+            # motor_x.speed = x_speed
+            # motor_y.speed = y_speed
+            
+            if abs(_ly) > 10:
+                dir = 1 if _ly>0 else  -1
+                motor_y.move(10000*dir, 500)
+            
+            if abs(_lx) > 10:
+                dir = 1 if _lx>0 else  -1
+                motor_x.move(10000*dir, 500)
 
         else:  # 摇杆数据为空
             print("摇杆数据为空!")
-            motor_x.speed = 0
-            motor_y.speed = 0
+            # motor_x.speed = 0
+            # motor_y.speed = 0
+            motor_x.stop()
+            motor_y.stop()
+
 
 # 创建两个线程
 _thread.start_new_thread(rc_loop, ())   # 创建一个线程，执行 rc_loop() 函数

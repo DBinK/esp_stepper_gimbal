@@ -1,40 +1,16 @@
+from modules.stepper import Stepper
 import time
-import math
 
-from machine import Pin, PWM, Timer
+s1 = Stepper(25,27,steps_per_rev=200*16,speed_sps=500)
+#s2 = Stepper(26,16,steps_per_rev=200*16,speed_sps=500)
+# some boards might require a different timer_id for each stepper:
+# s1 = Stepper(18,19,steps_per_rev=200,speed_sps=50,timer_id=0)
+# s2 = Stepper(20,21,steps_per_rev=200,speed_sps=50,timer_id=1)
 
+s1.target_deg(90)
+#s2.target_deg(45)
+time.sleep(5.0)
 
-def test_timer(tim_callback):
-    print(tim_callback)
-
-
-# tim = Timer(-1)
-# tim.init(period=200, mode=Timer.PERIODIC, callback=test_timer) 
-
-# tim2 = Timer(-1)
-# tim2.init(period=500, mode=Timer.PERIODIC, callback=test_timer) 
-
-# tim3 = Timer(-1)
-# tim3.init(period=100, mode=Timer.PERIODIC, callback=test_timer) 
-
-# tim4 = Timer(-1)
-# tim4.init(period=300, mode=Timer.PERIODIC, callback=test_timer) 
-
-tim = Timer(0)
-tim.init(period=200, mode=Timer.PERIODIC, callback=test_timer) 
-
-tim2 = Timer(1)
-tim2.init(period=500, mode=Timer.PERIODIC, callback=test_timer) 
-
-tim3 = Timer(2)
-tim3.init(period=100, mode=Timer.PERIODIC, callback=test_timer) 
-
-tim4 = Timer(5)
-tim4.init(period=300, mode=Timer.PERIODIC, callback=test_timer) 
-
-
-
-
-
-
-
+s1.target_deg(0)
+#s2.target_deg(5)
+time.sleep(5.0)
