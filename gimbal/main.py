@@ -17,8 +17,8 @@ rc_dt  = TimeDiff()
 manager = MultiMotorManager(period=2, timer_id=-1)
 
 # 创建多个电机并注册到管理器
-motor_x = StepperMotor(step_pin=25, dir_pin=27)
 motor_y = StepperMotor(step_pin=26, dir_pin=16)
+motor_x = StepperMotor(step_pin=25, dir_pin=27)
 manager.add_motor(motor_x)
 manager.add_motor(motor_y)
 
@@ -54,13 +54,14 @@ def gimbal_loop():
         Hz = int(1/(ms/1000)) # if ms > 0.0001 else 0
 
         print(f"imu_loop() 循环时间: {ms:.3f}ms, 频率: {Hz}Hz")
+        print(f"rc_data: {rc_data}")
 
         # 获取摇杆数据
         if stick_work:
             _ly = rc_data[1]
             _lx = rc_data[2]
-            _ry = rc_data[3]
-            _rx = rc_data[4]
+            _rx = rc_data[3]
+            _ry = rc_data[4]
         
             if rc_data[6] != 0x0:  # 急停保险
                 motor_x.speed = 0
@@ -70,8 +71,8 @@ def gimbal_loop():
                 time.sleep(5)
 
             # 摇杆数据缩放
+            y_speed = _ry * 10
             x_speed = _lx * 10
-            y_speed = _ly * 10
 
             print(f"x_speed: {x_speed}, y_speed: {y_speed}")
 
