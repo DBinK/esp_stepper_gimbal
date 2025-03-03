@@ -12,6 +12,7 @@ while True:
     
     if data[0] == 1:
         motor_x.target_deg_relative(-data[1])
+        motor_y.target_deg_relative(data[2])
     
     if data:
         print(data)
