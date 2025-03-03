@@ -1,16 +1,19 @@
-from modules.stepper import Stepper
+
 import time
 
-s1 = Stepper(25,27,steps_per_rev=200*16,speed_sps=500)
-#s2 = Stepper(26,16,steps_per_rev=200*16,speed_sps=500)
-# some boards might require a different timer_id for each stepper:
-# s1 = Stepper(18,19,steps_per_rev=200,speed_sps=50,timer_id=0)
-# s2 = Stepper(20,21,steps_per_rev=200,speed_sps=50,timer_id=1)
+from modules.stepper import Stepper
+from modules.serial_recv import read_uart
 
-s1.target_deg(90)
-#s2.target_deg(45)
-time.sleep(5.0)
+motor_y = Stepper(25,27,steps_per_rev=200*16,speed_sps=1000, timer_id=1)
+motor_x = Stepper(26,16,steps_per_rev=200*16,speed_sps=1000, timer_id=2)
 
-s1.target_deg(0)
-#s2.target_deg(5)
-time.sleep(5.0)
+while True:
+    data = read_uart()
+    
+    if data[0] == 1:
+        motor_x.target_deg_relative(-data[1])
+    
+    if data:
+        print(data)
+
+    time.sleep(0.01)

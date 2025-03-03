@@ -6,8 +6,8 @@ from machine import Pin
 from modules.utils import TimeDiff
 from modules.now_recv import read_espnow, process_data
 # from modules.speed_mode import StepperMotor, MultiMotorManager
-from modules.position_mode import StepperMotor
-
+# from modules.position_mode import StepperMotor
+from modules.stepper import Stepper
 
 time.sleep(1)  # 防止点停止按钮后马上再启动导致 Thonny 连接不上
 
@@ -23,8 +23,24 @@ rc_dt  = TimeDiff()
 # manager.add_motor(motor_x)
 # manager.add_motor(motor_y)
 
-motor_x = StepperMotor(step_pin=25, dir_pin=27)
-motor_y = StepperMotor(step_pin=26, dir_pin=16)
+# motor_x = StepperMotor(step_pin=25, dir_pin=27)
+# motor_y = StepperMotor(step_pin=26, dir_pin=16)
+
+motor_x = Stepper(25,27,steps_per_rev=200*16,speed_sps=5000, timer_id=1)
+motor_y = Stepper(26,16,steps_per_rev=200*16,speed_sps=5000, timer_id=2)
+
+motor_x.target_deg(90)
+motor_y.target_deg(45)
+time.sleep(3.0)
+
+motor_x.target_deg(0)
+motor_y.target_deg(0)
+time.sleep(3.0)
+
+motor_x.target_deg_relative(90)
+time.sleep(3.0)
+motor_x.target_deg_relative(-180)
+time.sleep(3.0)
 
 # 摇杆数据全局变量
 rc_data = [0, 0, 0, 0, 0, 0, 0, 0]
@@ -75,8 +91,8 @@ def gimbal_loop():
                 time.sleep(5)
 
             # 摇杆数据缩放
-            y_speed = _ry * 10
-            x_speed = _lx * 10
+            y_speed = _ry * 0.1
+            x_speed = _lx * 0.1
 
             print(f"x_speed: {x_speed}, y_speed: {y_speed}")
 
@@ -84,13 +100,8 @@ def gimbal_loop():
             # motor_x.speed = x_speed
             # motor_y.speed = y_speed
             
-            if abs(_ly) > 10:
-                dir = 1 if _ly>0 else  -1
-                motor_y.move(10000*dir, 500)
-            
-            if abs(_lx) > 10:
-                dir = 1 if _lx>0 else  -1
-                motor_x.move(10000*dir, 500)
+            motor_x.target_deg_relative(x_speed)
+            motor_y.target_deg_relative(y_speed)
 
         else:  # 摇杆数据为空
             print("摇杆数据为空!")

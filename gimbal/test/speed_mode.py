@@ -16,10 +16,10 @@ class StepperMotor:
         """由管理器调用的内部更新方法"""
         if abs(self.speed) < abs(self.min_speed):
             self.pwm.duty_u16(0)
-            print(f" {self.motor_id}_speed: 速度太小", end= " | ")
+            # print(f" {self.motor_id}_speed: 速度太小", end= " | ")
         else:
             self.dir_pin.value(1 if self.speed > 0 else 0)
-            clamped_speed = max(self.min_speed, min(abs(self.speed), self.max_speed))
+            clamped_speed = int(max(self.min_speed, min(abs(self.speed), self.max_speed)))
             self.pwm.duty_u16(32768)
             self.pwm.freq(clamped_speed)
 
@@ -77,5 +77,5 @@ if __name__ == "__main__":
             time.sleep(0.02)
             
     except KeyboardInterrupt:
-        motor1.pwm.duty_u16(0)
-        motor2.pwm.duty_u16(0)
+        motor1.stop()
+        motor2.stop()
