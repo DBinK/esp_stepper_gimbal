@@ -43,17 +43,20 @@ class Stepper:
     def target_deg(self,deg):
         self.target(self.steps_per_rev*deg/360.0)
 
-    def target_deg_relative(self, delta_deg):
+    def target_deg_relative(self, delta_deg, steps_per_rev=None):
         """
         设置相对于当前位置的目标角度。
         
         参数:
         delta_deg (float): 相对当前位置的角度变化量（正为顺时针，负为逆时针）
+        steps_per_rev (int, optional): 每转步数，默认为 None, 使用实例的 steps_per_rev
         """
         current_pos_deg = self.get_pos_deg()
         new_target_deg = current_pos_deg + delta_deg
+        if steps_per_rev is not None:
+            self.steps_per_rev = steps_per_rev  # 更新实例的 steps_per_rev
         self.target_deg(new_target_deg)
-    
+
     def target_rad(self,rad):
         self.target(self.steps_per_rev*rad/(2.0*math.pi))
     
