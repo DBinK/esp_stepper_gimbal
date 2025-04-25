@@ -1,27 +1,21 @@
 import time
 from pynput import keyboard
 
-import modules.serial_send as ser
-
 def on_press(key):
     try:
         print(f"Key {key.char} was pressed")
         
         if key.char == 'w':
             print("Forward")
-            ser.send_uart(0, -10)
         
         elif key.char == 's':
             print("Backward")
-            ser.send_uart(0, 10)
         
         elif key.char == 'a':
             print("Left")
-            ser.send_uart(-10, 0)
 
         elif key.char == 'd':
             print("Right")
-            ser.send_uart(10, 0)
             
     except AttributeError:
         print(f"Special key {key} was pressed")

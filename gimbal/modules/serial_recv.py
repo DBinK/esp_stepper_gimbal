@@ -1,8 +1,9 @@
 import re
 import time
+import struct
 from machine import Pin, UART
 
-uart = UART(1, baudrate=115200, tx=4, rx=2)
+uart = UART(1, baudrate=115200, tx=18, rx=19)
 
 def parse_string(s):
     """
@@ -53,25 +54,36 @@ def parse_string(s):
         return [0, 0, 0]
 
 def read_uart():
-    data = [0, 0, 0]
-    if uart.any():
-        try:
-            msg = uart.readline()
-            if not msg:  # 处理空消息
-                return [0, 0, 0]
-            msg_str = msg.decode('utf-8').strip()  # 安全解码
-            print(f"接收到原始数据：{msg_str}")  # 调试输出
-            data = parse_string(msg_str)
-        except UnicodeDecodeError:
-            print(f"解码错误：无法解析字节数据 {msg}")
-        except Exception as e:
-            print(f"未知错误：{e}")
-    return data
+    """
+    从 UART 读取数据并解析 32 位浮点数 (yaw, pitch, deep)
+    数据格式：
+    | 0xA5 (1 byte) | yaw (4 bytes) | pitch (4 bytes) | deep (4 bytes) |
+    """
+    while uart.any() < 13:  # 确保至少 13 字节
+        time.sleep(0.01)  # 等待数据到齐
 
+    raw_data = uart.read(256)  # 读取 13 字节
+    print(f"收到数据包: {raw_data}")
+    
+    if len(raw_data) != 13 or raw_data[0] != 0xA5:
+        print(f"无效数据包，丢弃 {raw_data}")
+        return [0, 0, 0, 0]
+
+    try:
+        yaw, pitch, deep = struct.unpack('<fff', raw_data[1:])  # 解析浮点数
+        raw_data = []
+        return [1, yaw, pitch, deep]
+    
+    except struct.error:
+        print("数据解析错误")
+        return [0, 0, 0, 0]
+    
 if __name__ == "__main__":
-    print("正在读取uart数据...")
+    print("正在读取 UART 数据...")
     while True:
         data = read_uart()
-        if data[0] == 1:  # 仅处理有效数据
-            print(f"成功解析数据：{data[1:]}")
+        if data[0] == 1:
+            print(f"成功解析数据：yaw={data[1]:.2f}, pitch={data[2]:.2f}, deep={data[3]:.2f}")
         time.sleep(0.1)
+        
+
