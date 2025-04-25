@@ -63,10 +63,10 @@ def read_uart():
         time.sleep(0.01)  # 等待数据到齐
 
     raw_data = uart.read(256)  # 读取 13 字节
-    print(f"收到数据包: {raw_data}")
+    print(f"收到数据包: {raw_data.hex()}")
     
-    if len(raw_data) != 13 or raw_data[0] != 0xA5:
-        print(f"无效数据包，丢弃 {raw_data}")
+    if raw_data[0] != 0x5A:
+        print(f"无效数据包，丢弃")
         return [0, 0, 0, 0]
 
     try:

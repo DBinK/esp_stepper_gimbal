@@ -11,8 +11,8 @@ while True:
     data = read_uart()
     
     if data[0] == 1:
-        motor_x.target_deg_relative(-data[1])
-        motor_y.target_deg_relative(data[2])
+        motor_x.target_deg_relative(-data[1] * 0.1)
+        motor_y.target_deg_relative(-data[2] * 0.1)
         
         if data:
             print(data)
